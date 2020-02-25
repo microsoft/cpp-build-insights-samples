@@ -23,11 +23,11 @@ public:
         return AnalysisControl::CONTINUE;
     }
 
-    // This function is used to capture Function activity events
-    // and print a list of function that take more than 500 milliseconds
-    // to generate.
+    // This function is used to capture Function activity events that are 
+    // within a CodeGeneration activity, and to print a list of functions 
+    // that take more than 500 milliseconds to generate.
 
-    void CheckForLongFunctionCodeGen(Function f)
+    void CheckForLongFunctionCodeGen(CodeGeneration cg, Function f)
     {
         using namespace std::chrono;
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
     LongCodeGenFinder lcgf;
 
-    // Let's make a group of analyzer that will receive
+    // Let's make a group of analyzers that will receive
     // events in the trace. We only have one; easy!
     auto group = MakeStaticAnalyzerGroup(&lcgf);
 
