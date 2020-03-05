@@ -35,10 +35,10 @@ public:
             return;
         }
 
-        std::wcout << "Duration: " << duration_cast<milliseconds>(
+        std::cout << "Duration: " << duration_cast<milliseconds>(
             f.Duration()).count();
 
-        std::wcout << "\t Function Name: " << f.Name() << std::endl;
+        std::cout << "\t Function Name: " << f.Name() << std::endl;
     }
 };
 

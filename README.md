@@ -44,7 +44,7 @@ In order to build and run the samples in this repository, you need:
         1. Run the following command: `vcperf /start MySessionName`
         1. Build your project. You do not need to use the same command prompt for building.
         1. Run the following command: `vcperf /stopnoanalyze MySessionName outputTraceFile.etl`
-    1. Programmatically: see the [C++ Build Insights SDK (ADD LINK)]() documentation for details.
+    1. Programmatically: see the [C++ Build Insights SDK](https://docs.microsoft.com/cpp/build-insights/reference/sdk/overview?view=vs-2019) documentation for details.
 1. Invoke the sample, passing your trace as the first parameter.
 
 ## Contributing
