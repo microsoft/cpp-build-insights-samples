@@ -34,7 +34,6 @@ public:
 
     AnalysisControl OnStopActivity(const EventStack& eventStack) override
     {
-
         switch (eventStack.Back().EventId())
         {
         case EVENT_ID_FRONT_END_FILE:
