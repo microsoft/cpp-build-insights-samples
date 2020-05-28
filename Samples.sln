@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LongCodeGenFinder", "LongCo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BottleneckCompileFinder", "BottleneckCompileFinder\BottleneckCompileFinder.vcxproj", "{771D60A2-EDC9-4CA1-BA93-F2B53CBC357D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RecursiveTemplateInspector", "RecursiveTemplateInspector\RecursiveTemplateInspector.vcxproj", "{2F8A1B93-522E-449E-A7E2-2AFC0910DF48}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TopHeaders", "TopHeaders\TopHeaders.vcxproj", "{A99D36F8-E953-4C59-AD45-93597900CAFF}"
 EndProject
 Global
@@ -33,6 +35,14 @@ Global
 		{771D60A2-EDC9-4CA1-BA93-F2B53CBC357D}.Release|x64.Build.0 = Release|x64
 		{771D60A2-EDC9-4CA1-BA93-F2B53CBC357D}.Release|x86.ActiveCfg = Release|Win32
 		{771D60A2-EDC9-4CA1-BA93-F2B53CBC357D}.Release|x86.Build.0 = Release|Win32
+		{2F8A1B93-522E-449E-A7E2-2AFC0910DF48}.Debug|x64.ActiveCfg = Debug|x64
+		{2F8A1B93-522E-449E-A7E2-2AFC0910DF48}.Debug|x64.Build.0 = Debug|x64
+		{2F8A1B93-522E-449E-A7E2-2AFC0910DF48}.Debug|x86.ActiveCfg = Debug|Win32
+		{2F8A1B93-522E-449E-A7E2-2AFC0910DF48}.Debug|x86.Build.0 = Debug|Win32
+		{2F8A1B93-522E-449E-A7E2-2AFC0910DF48}.Release|x64.ActiveCfg = Release|x64
+		{2F8A1B93-522E-449E-A7E2-2AFC0910DF48}.Release|x64.Build.0 = Release|x64
+		{2F8A1B93-522E-449E-A7E2-2AFC0910DF48}.Release|x86.ActiveCfg = Release|Win32
+		{2F8A1B93-522E-449E-A7E2-2AFC0910DF48}.Release|x86.Build.0 = Release|Win32
 		{A99D36F8-E953-4C59-AD45-93597900CAFF}.Debug|x64.ActiveCfg = Debug|x64
 		{A99D36F8-E953-4C59-AD45-93597900CAFF}.Debug|x64.Build.0 = Debug|x64
 		{A99D36F8-E953-4C59-AD45-93597900CAFF}.Debug|x86.ActiveCfg = Debug|Win32
