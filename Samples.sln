@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RecursiveTemplateInspector"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TopHeaders", "TopHeaders\TopHeaders.vcxproj", "{A99D36F8-E953-4C59-AD45-93597900CAFF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FunctionBottlenecks", "FunctionBottlenecks\FunctionBottlenecks.vcxproj", "{F002C795-7D92-4146-8A7C-BBEB946F4309}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{A99D36F8-E953-4C59-AD45-93597900CAFF}.Release|x64.Build.0 = Release|x64
 		{A99D36F8-E953-4C59-AD45-93597900CAFF}.Release|x86.ActiveCfg = Release|Win32
 		{A99D36F8-E953-4C59-AD45-93597900CAFF}.Release|x86.Build.0 = Release|Win32
+		{F002C795-7D92-4146-8A7C-BBEB946F4309}.Debug|x64.ActiveCfg = Debug|x64
+		{F002C795-7D92-4146-8A7C-BBEB946F4309}.Debug|x64.Build.0 = Debug|x64
+		{F002C795-7D92-4146-8A7C-BBEB946F4309}.Debug|x86.ActiveCfg = Debug|Win32
+		{F002C795-7D92-4146-8A7C-BBEB946F4309}.Debug|x86.Build.0 = Debug|Win32
+		{F002C795-7D92-4146-8A7C-BBEB946F4309}.Release|x64.ActiveCfg = Release|x64
+		{F002C795-7D92-4146-8A7C-BBEB946F4309}.Release|x64.Build.0 = Release|x64
+		{F002C795-7D92-4146-8A7C-BBEB946F4309}.Release|x86.ActiveCfg = Release|Win32
+		{F002C795-7D92-4146-8A7C-BBEB946F4309}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
