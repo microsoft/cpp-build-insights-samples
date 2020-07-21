@@ -19,6 +19,7 @@ This repository provides buildable and runnable samples for the C++ Build Insigh
 | Sample            | Description                                |
 |-------------------|--------------------------------------------|
 | BottleneckCompileFinder | Finds CL invocations that are bottlenecks and don't use /MP. |
+| FunctionBottlenecks | Prints a list of functions that are code generation bottlenecks within their CL or Link invocation. |
 | LongCodeGenFinder | Lists the functions that take more than 500 milliseconds to generate in your entire build. |
 | RecursiveTemplateInspector | Identifies costly recursive template instantiations. |
 | TopHeaders | Determines which headers you might want to precompile. |
