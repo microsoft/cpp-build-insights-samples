@@ -21,9 +21,10 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{691b8829-ae90-4e85-b809-45d714f66cc0}</ProjectGuid>
-    <RootNamespace>PrecompiledHeaderFinder</RootNamespace>
+    <ProjectGuid>{f16c04c7-7f1b-4d43-b9c3-156d27d0cd5b}</ProjectGuid>
+    <RootNamespace>LongHeaderUnitFinder</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>LongHeaderUnitFinder</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

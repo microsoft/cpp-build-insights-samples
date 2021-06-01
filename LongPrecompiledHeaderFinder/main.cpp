@@ -10,7 +10,7 @@ using namespace Microsoft::Cpp::BuildInsights;
 using namespace Activities;
 using namespace SimpleEvents;
 
-class LongModuleFinder : public IAnalyzer
+class LongPrecompiledHeaderFinder : public IAnalyzer
 {
     struct IdentifiedCompilerInvocation
     {
@@ -23,7 +23,7 @@ class LongModuleFinder : public IAnalyzer
     };
 
 public:
-    LongModuleFinder() :
+    LongPrecompiledHeaderFinder():
         pass_{ 0 },
         cachedInvocationDurations_{},
         identifiedCompilerInvocations_{}
@@ -40,7 +40,7 @@ public:
     {
         if (pass_ == 1) {
             MatchEventStackInMemberFunction(eventStack, this,
-                &LongModuleFinder::OnStopCompiler);
+                &LongPrecompiledHeaderFinder::OnStopCompiler);
         }
 
         return AnalysisControl::CONTINUE;
@@ -50,7 +50,7 @@ public:
     {
         if (pass_ == 2) {
             MatchEventStackInMemberFunction(eventStack, this,
-                &LongModuleFinder::OnModuleEvent);
+                &LongPrecompiledHeaderFinder::OnPrecompiledHeaderEvent);
         }
 
         return AnalysisControl::CONTINUE;
@@ -68,7 +68,7 @@ public:
             duration_cast<milliseconds>(cl.Duration());
     }
 
-    void OnModuleEvent(Compiler cl, Module m)
+    void OnPrecompiledHeaderEvent(Compiler cl, PrecompiledHeader pch)
     {
         using namespace std::chrono;
 
@@ -83,7 +83,7 @@ public:
             itInvocation->second.count()) / 1000;
 
         identifiedCompilerInvocations_[cl.EventInstanceId()] =
-        { cl.InvocationId(), invocationTime };
+            { cl.InvocationId(), invocationTime};
     }
 
     AnalysisControl OnEndAnalysis() override
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 {
     if (argc <= 1) return -1;
 
-    LongModuleFinder lmf;
+    LongPrecompiledHeaderFinder lmf;
 
     auto group = MakeStaticAnalyzerGroup(&lmf);
 

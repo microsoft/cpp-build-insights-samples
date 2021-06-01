@@ -15,9 +15,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FunctionBottlenecks", "Func
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LongModuleFinder", "LongModuleFinder\LongModuleFinder.vcxproj", "{1149112D-C4E7-4CC7-B9C7-2AED3A159F8E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PrecompiledHeaderFinder", "PrecompiledHeaderFinder\PrecompiledHeaderFinder.vcxproj", "{691B8829-AE90-4E85-B809-45D714F66CC0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LongPrecompiledHeaderFinder", "LongPrecompiledHeaderFinder\LongPrecompiledHeaderFinder.vcxproj", "{691B8829-AE90-4E85-B809-45D714F66CC0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HeaderUnitFinder", "HeaderUnitFinder\HeaderUnitFinder.vcxproj", "{F16C04C7-7F1B-4D43-B9C3-156D27D0CD5B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LongHeaderUnitFinder", "LongHeaderUnitFinder\LongHeaderUnitFinder.vcxproj", "{F16C04C7-7F1B-4D43-B9C3-156D27D0CD5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
