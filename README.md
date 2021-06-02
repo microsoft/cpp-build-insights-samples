@@ -23,9 +23,9 @@ This repository provides buildable and runnable samples for the C++ Build Insigh
 | LongCodeGenFinder | Lists the functions that take more than 500 milliseconds to generate in your entire build. |
 | RecursiveTemplateInspector | Identifies costly recursive template instantiations. |
 | TopHeaders | Determines which headers you might want to precompile. |
-| LongModuleFinder | Identifies costly module interface IFC creation. |
-| HeaderUnitFinder | Identifies costly header unit IFC creation. |
-| PrecompiledHeaderFinder | Identifies costly precompiled header (PCH) IFC creation. |
+| LongModuleFinder | Identifies costly module interface IFC creation. Requires trace with code built using MSVC version 16.10 or later and using SDK version Microsoft.Cpp.BuildInsights 1.2.0 or later. |
+| LongHeaderUnitFinder | Identifies costly header unit IFC creation. Requires trace with code built using MSVC version 16.10 or later and using SDK version Microsoft.Cpp.BuildInsights 1.2.0 or later. |
+| LongPrecompiledHeaderFinder | Identifies costly precompiled header (PCH) IFC creation. Requires trace with code built using MSVC version 16.10 or later and using SDK version Microsoft.Cpp.BuildInsights 1.2.0 or later. |
 
 ## Prerequisites
 
