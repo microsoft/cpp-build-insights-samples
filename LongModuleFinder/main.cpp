@@ -15,6 +15,7 @@ class LongModuleFinder : public IAnalyzer
     struct FrontEndPassData
     {
         std::string Name;
+        unsigned InvocationId;
         double Duration;
 
         bool operator<(const FrontEndPassData& other) const {
@@ -50,7 +51,7 @@ public:
         return AnalysisControl::CONTINUE;
     }
 
-    void OnStopFrontEndPass(FrontEndPass frontEndPass)
+    void OnStopFrontEndPass(Compiler cl, FrontEndPass frontEndPass)
     {
         // if the EventInstanceId of the current FrontEndPass has been saved
 
@@ -72,7 +73,7 @@ public:
         std::wstring inputSourcePathWs(frontEndPass.InputSourcePath());
         std::string inputSourcePathStr(inputSourcePathWs.begin(), inputSourcePathWs.end());
 
-        FrontEndPassData_[frontEndPass.EventInstanceId()] = { inputSourcePathStr, duration };
+        FrontEndPassData_[frontEndPass.EventInstanceId()] = { inputSourcePathStr, cl.InvocationId(), duration };
     }
 
     void OnModuleEvent(FrontEndPass frontEndPass, Module m)
@@ -93,7 +94,7 @@ public:
 
         for (auto& func : sortedFrontEndPassData)
         {
-            std::cout << "File Name: " << func.Name << "\t\tDuration: " << func.Duration << " s " << std::endl;
+            std::cout << "File Name: " << func.Name << "\t\tCL Invocation " << func.InvocationId << "\t\tDuration: " << func.Duration << " s " << std::endl;
         }
 
         return AnalysisControl::CONTINUE;
