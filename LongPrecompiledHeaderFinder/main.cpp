@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <vector>
+#include <unordered_set>
 #include <CppBuildInsights.hpp>
 
 using namespace Microsoft::Cpp::BuildInsights;
@@ -12,118 +12,110 @@ using namespace SimpleEvents;
 
 class LongPrecompiledHeaderFinder : public IAnalyzer
 {
-    struct IdentifiedCompilerInvocation
+    struct FrontEndPassData
     {
-        unsigned InvocationId;
-        double InvocationTime;
+        std::string Name;
+        double Duration;
 
-        bool operator<(const IdentifiedCompilerInvocation& other) const {
-            return InvocationTime > other.InvocationTime;
+        bool operator<(const FrontEndPassData& other) const {
+            return Duration > other.Duration;
         }
     };
 
 public:
-    LongPrecompiledHeaderFinder():
-        pass_{ 0 },
-        cachedInvocationDurations_{},
-        identifiedCompilerInvocations_{}
+    LongPrecompiledHeaderFinder() :
+        cachedFrontEndPassIds_{},
+        FrontEndPassData_{}
     {}
 
     AnalysisControl OnBeginAnalysisPass() override
     {
-        ++pass_;
         return AnalysisControl::CONTINUE;
     }
 
     AnalysisControl OnStopActivity(const EventStack& eventStack)
         override
     {
-        if (pass_ == 1) {
-            MatchEventStackInMemberFunction(eventStack, this,
-                &LongPrecompiledHeaderFinder::OnStopCompiler);
-        }
+        MatchEventStackInMemberFunction(eventStack, this,
+            &LongPrecompiledHeaderFinder::OnStopFrontEndPass);
 
         return AnalysisControl::CONTINUE;
     }
 
     AnalysisControl OnSimpleEvent(const EventStack& eventStack) override
     {
-        if (pass_ == 2) {
-            MatchEventStackInMemberFunction(eventStack, this,
-                &LongPrecompiledHeaderFinder::OnPrecompiledHeaderEvent);
-        }
+        MatchEventStackInMemberFunction(eventStack, this,
+            &LongPrecompiledHeaderFinder::OnPrecompiledHeaderEvent);
 
         return AnalysisControl::CONTINUE;
     }
 
-    void OnStopCompiler(Compiler cl)
+    void OnStopFrontEndPass(FrontEndPass frontEndPass)
     {
-        using namespace std::chrono;
+        // if the EventInstanceId of the current FrontEndPass has been saved
 
-        if (cl.Duration() < std::chrono::seconds(1)) {
+        auto itInvocation = cachedFrontEndPassIds_.find(
+            frontEndPass.EventInstanceId());
+
+        if (itInvocation == cachedFrontEndPassIds_.end()) {
             return;
         }
 
-        cachedInvocationDurations_[cl.EventInstanceId()] =
-            duration_cast<milliseconds>(cl.Duration());
+        using namespace std::chrono;
+
+        if (frontEndPass.Duration() < std::chrono::seconds(1)) {
+            return;
+        }
+
+        double duration = static_cast<double>(duration_cast<milliseconds>(frontEndPass.Duration()).count()) / 1000;
+
+        std::wstring inputSourcePathWs(frontEndPass.InputSourcePath());
+        std::string inputSourcePathStr(inputSourcePathWs.begin(), inputSourcePathWs.end());
+
+        FrontEndPassData_[frontEndPass.EventInstanceId()] = { inputSourcePathStr, duration };
     }
 
-    void OnPrecompiledHeaderEvent(Compiler cl, PrecompiledHeader pch)
+    void OnPrecompiledHeaderEvent(FrontEndPass frontEndPass, PrecompiledHeader pch)
     {
-        using namespace std::chrono;
-
-        auto itInvocation = cachedInvocationDurations_.find(
-            cl.EventInstanceId());
-
-        if (itInvocation == cachedInvocationDurations_.end()) {
-            return;
-        }
-
-        double invocationTime = static_cast<double>(
-            itInvocation->second.count()) / 1000;
-
-        identifiedCompilerInvocations_[cl.EventInstanceId()] =
-            { cl.InvocationId(), invocationTime};
+        // Save the EventInstanceId of the current FrontEndPass
+        cachedFrontEndPassIds_.insert(frontEndPass.EventInstanceId());
     }
 
     AnalysisControl OnEndAnalysis() override
     {
-        std::vector<IdentifiedCompilerInvocation> sortedCompilerInvocations;
+        std::vector<FrontEndPassData> sortedFrontEndPassData;
 
-        for (auto& p : identifiedCompilerInvocations_) {
-            sortedCompilerInvocations.push_back(p.second);
+        for (auto& p : FrontEndPassData_) {
+            sortedFrontEndPassData.push_back(p.second);
         }
 
-        std::sort(sortedCompilerInvocations.begin(), sortedCompilerInvocations.end());
+        std::sort(sortedFrontEndPassData.begin(), sortedFrontEndPassData.end());
 
-        for (auto& func : sortedCompilerInvocations)
+        for (auto& func : sortedFrontEndPassData)
         {
-            std::cout << "CL Invocation " << func.InvocationId << "\t\tDuration: " << func.InvocationTime << " s " << std::endl;
+            std::cout << "File Name: " << func.Name << "\t\tDuration: " << func.Duration << " s " << std::endl;
         }
 
         return AnalysisControl::CONTINUE;
     }
 
 private:
-    unsigned pass_;
+    std::unordered_set<unsigned long long> cachedFrontEndPassIds_;
 
     std::unordered_map<unsigned long long,
-        std::chrono::milliseconds> cachedInvocationDurations_;
-
-    std::unordered_map<unsigned long long,
-        IdentifiedCompilerInvocation> identifiedCompilerInvocations_;
+        FrontEndPassData> FrontEndPassData_;
 };
 
 int main(int argc, char* argv[])
 {
     if (argc <= 1) return -1;
 
-    LongPrecompiledHeaderFinder lmf;
+    LongPrecompiledHeaderFinder lpchf;
 
-    auto group = MakeStaticAnalyzerGroup(&lmf);
+    auto group = MakeStaticAnalyzerGroup(&lpchf);
 
     // argv[1] should contain the path to a trace file
-    int numberOfPasses = 2;
+    int numberOfPasses = 1;
 
     return Analyze(argv[1], numberOfPasses, group);
 }
