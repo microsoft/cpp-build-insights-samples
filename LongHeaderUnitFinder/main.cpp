@@ -14,7 +14,7 @@ class LongHeaderUnitFinder : public IAnalyzer
 {
     struct FrontEndPassData
     {
-        std::string Name;
+        std::wstring Name;
         unsigned InvocationId;
         double Duration;
 
@@ -70,10 +70,9 @@ public:
 
         double duration = static_cast<double>(duration_cast<milliseconds>(frontEndPass.Duration()).count()) / 1000;
 
-        std::wstring inputSourcePathWs(frontEndPass.InputSourcePath());
-        std::string inputSourcePathStr(inputSourcePathWs.begin(), inputSourcePathWs.end());
+        std::wstring inputSourcePathWstr(frontEndPass.InputSourcePath());
 
-        FrontEndPassData_[frontEndPass.EventInstanceId()] = { inputSourcePathStr, cl.InvocationId(), duration };
+        FrontEndPassData_[frontEndPass.EventInstanceId()] = { inputSourcePathWstr, cl.InvocationId(), duration };
     }
 
     void OnHeaderUnitEvent(FrontEndPass frontEndPass, HeaderUnit hu)
@@ -92,9 +91,11 @@ public:
 
         std::sort(sortedFrontEndPassData.begin(), sortedFrontEndPassData.end());
 
-        for (auto& func : sortedFrontEndPassData)
+        for (auto& frontEndPassData : sortedFrontEndPassData)
         {
-            std::cout << "File Name: " << func.Name << "\t\tCL Invocation " << func.InvocationId << "\t\tDuration: " << func.Duration << " s " << std::endl;
+            std::cout << "File Name: ";
+            std::wcout << frontEndPassData.Name;
+            std::cout << "\t\tCL Invocation " << frontEndPassData.InvocationId << "\t\tDuration: " << frontEndPassData.Duration << " s " << std::endl;
         }
 
         return AnalysisControl::CONTINUE;
