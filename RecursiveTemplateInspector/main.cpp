@@ -177,7 +177,7 @@ private:
         return topSpecializations;
     }
 
-    // A hash table that stores infomation about template instantiations
+    // A hash table that stores information about template instantiations
     // that are at the root of a recursive instantiation hierarchy.
     std::unordered_map<unsigned long long, TemplateSpecializationInfo> rootSpecializations_;
 
