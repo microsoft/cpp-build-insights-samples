@@ -1,5 +1,6 @@
 #include "PerfDataCollector.h"
 #include <filesystem>
+#include <cassert>
 
 enum class OutputFormat
 {
@@ -10,19 +11,19 @@ enum class OutputFormat
 
 struct Options
 {
-    bool verbose{};                 // Verbose output
-    OutputFormat outputFormat{};    // OptputFormat::Summary is the default
-    const char* traceFilePath{};    // Path to the trace file
+    bool verbose{};                             // Verbose output
+    OutputFormat outputFormat{};                // Output format, defaults to OptputFormat::Summary
+    std::vector<const char*> traceFilePaths{};  // Paths to the trace files to process
 
     void PrintUsage(const char* programName)
     {
         std::filesystem::path path{ programName };
         std::wcerr << L"Usage: " << path.replace_extension().filename()
-            << L" [-v[erbose]] [-f[ormat]:Summary|CSV|Both]] <path to trace file>\n"
+            << L" [-v[erbose]] [-f[ormat]:Summary|CSV|Both]] <paths to trace files>\n"
             << L"    -v[erbose] : Print verbose output. Optional.\n"
             << L"    -f[ormat]:<format> : Output format (Summary, CSV, or Both). Optional. Defaults to Summary.\n"
-            << L"    <path to trace file> : Path to the trace file. Required.\n"
-            << L"Options and option values are case-insensitive." << std::endl;
+            << L"    <paths to trace files> : Paths to one or more ETW trace files, separated by space. Required.\n"
+            << L"Option names and values are case-insensitive." << std::endl;
     }
 
     // Returns zero if the program should continue, non-zero if it should exit.
@@ -98,14 +99,19 @@ struct Options
             return -1;
         }
 
-        // Check the path to the trace file
-        if (!std::filesystem::exists(argv[filePathArgIndex]))
+        for (int i = filePathArgIndex; i < argc; ++i)
         {
-            std::wcerr << L"File not found: " << argv[filePathArgIndex] << std::endl;
-            return -1;
-        }
+            auto filePath = argv[i];
 
-        traceFilePath = argv[filePathArgIndex];
+            // Check the path to the trace file
+            if (!std::filesystem::exists(filePath))
+            {
+                std::wcerr << L"File not found: " << filePath << std::endl;
+                return -1;
+            }
+
+            traceFilePaths.push_back(filePath);
+        }
 
         return 0;
     }
@@ -121,29 +127,35 @@ int main(int argc, char *argv[])
 
     auto analyzers = MakeStaticAnalyzerGroup(&perfDataCollector);
 
-    constexpr int NumberOfPasses = 1;
-    const auto result = Analyze(options.traceFilePath, NumberOfPasses, analyzers);
-    if (result != RESULT_CODE_SUCCESS)
+    assert(options.traceFilePaths != empty);
+    for (auto traceFilePath : options.traceFilePaths)
     {
-        std::wcerr << L"Failed to analyze the trace file \"" << options.traceFilePath << L"\": ";
+        std::wcout << L"Analyzing " << traceFilePath << L"..." << std::endl;
 
-        switch (result)
+        constexpr int NumberOfPasses = 1;
+        const auto result = Analyze(traceFilePath, NumberOfPasses, analyzers);
+        if (result != RESULT_CODE_SUCCESS)
         {
-        case RESULT_CODE_FAILURE_DROPPED_EVENTS:
-            std::wcerr << L"Log is missing some important events." << std::endl;
-            break;
-        case RESULT_CODE_FAILURE_INVALID_INPUT_LOG_FILE:
-            std::wcerr << L"Input log file is invalid." << std::endl;
-            break;
-        case RESULT_CODE_FAILURE_NO_CONTEXT_INFO_AVAILABLE:
-            std::wcerr << L"Failed to get context information from the trace file." << std::endl;
-            break;
-        default:
-            std::wcerr << L"Error Code = " << static_cast<int>(result) << std::endl;
-            break;
-        }
+            std::wcerr << L"Failed to analyze the trace file \"" << traceFilePath << L"\": ";
 
-        return -1;
+            switch (result)
+            {
+            case RESULT_CODE_FAILURE_DROPPED_EVENTS:
+                std::wcerr << L"Log is missing some important events." << std::endl;
+                break;
+            case RESULT_CODE_FAILURE_INVALID_INPUT_LOG_FILE:
+                std::wcerr << L"Input log file is invalid." << std::endl;
+                break;
+            case RESULT_CODE_FAILURE_NO_CONTEXT_INFO_AVAILABLE:
+                std::wcerr << L"Failed to get context information from the trace file." << std::endl;
+                break;
+            default:
+                std::wcerr << L"Error Code = " << static_cast<int>(result) << std::endl;
+                break;
+            }
+
+            return -1;
+        }
     }
 
     // Print Summary, CSV, or both as requested.

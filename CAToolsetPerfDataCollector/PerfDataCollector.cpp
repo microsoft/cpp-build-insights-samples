@@ -194,7 +194,8 @@ void PerfDataCollector::PrintSummary()
     const Indenter _{ indent };
 
     // The number of TUs compiled
-    std::wcout << L"Number of TUs compiled: " << (perfDataPerTu.size() - ignoredTUs) << L"\n";
+    const auto successfulTUs = perfDataPerTu.size() - ignoredTUs;
+    std::wcout << L"Number of TUs successfully analyzed: " << successfulTUs << L"\n";
     // The number of TUs ignored due to CA Pass less than FE Pass
     if (ignoredTUs > 0)
         std::wcout << L"Number of TUs excluded (files not analyzed or had analysis error): " << ignoredTUs << L"\n";
@@ -207,71 +208,99 @@ void PerfDataCollector::PrintSummary()
         << total.FPAFunction.count() << L", " << total.EspXCfgBuild.count() << L", " << total.EspXAllChecks.count() << L", "
         << total.EspXPathSensitiveChecks.count() << std::endl;
 
+    WcoutStateRestorer restorer;
+    std::wcout << std::fixed << std::setprecision(2);
+
     // Total pass = FE Pass + CA Pass + BE Pass
     const auto totalPass = total.FEPass + total.CAPass + total.BEPass;
     if (totalPass == milliseconds::zero())  // Very unlikely, but just in case.
         return;
 
+    // Duration of each compiler pass in all compiler passes
+    const auto totalPassTime = static_cast<double>(totalPass.count());
+    std::wcout
+        << L"Compiler Passes [percentages are \"percentage of parent\" (\"percentage of total\")]:\n"
+        << indent << L"Front End Pass = " << (total.FEPass.count() / totalPassTime) * 100 << L"%\n"
+        << indent << L"Back End Pass = " << (total.BEPass.count() / totalPassTime) * 100 << L"%\n"
+        << indent << L"Code Analysis Pass = " << (total.CAPass.count() / totalPassTime) * 100 << L"%\n";
+    if (total.CAPass > milliseconds::zero())
     {
-        WcoutStateRestorer restorer;
-
-        std::wcout << std::fixed << std::setprecision(2);
-        // Duration of each compiler pass in all compiler passes
-        const auto totalPassTime = static_cast<double>(totalPass.count());
+        // Duration of each CA Pass activity in CA Pass
+        const Indenter _{ indent };
+        const auto totalCAPassTime = static_cast<double>(total.CAPass.count());
+        const auto compilationPlusMisc = (total.CAPass - total.ASTCreation - total.ASTClients).count();
+        const auto astCreation = total.ASTCreation.count();
+        const auto astClients = total.ASTClients.count();
         std::wcout
-            << L"Compiler Passes:\n"
-            << indent << L"Front End Pass = " << (total.FEPass.count() / totalPassTime) * 100 << L"%\n"
-            << indent << L"Back End Pass = " << (total.BEPass.count() / totalPassTime) * 100 << L"%\n"
-            << indent << L"Code Analysis Pass = " << (total.CAPass.count() / totalPassTime) * 100 << L"%\n";
-        if (total.CAPass > milliseconds::zero())
+            << indent << L"Compilation + Miscellaneous = " << (compilationPlusMisc / totalCAPassTime) * 100
+            << L"% (" << (compilationPlusMisc / totalPassTime) * 100 << L"%)\n"
+            << indent << L"AST Creation = " << (astCreation / totalCAPassTime) * 100
+            << L"% (" << (astCreation / totalPassTime) * 100 << L"%)\n"
+            << indent << L"All AST Clients = " << (astClients / totalCAPassTime) * 100
+            << L"% (" << (astClients / totalPassTime) * 100 << L"%)\n";
+        if (total.ASTClients > milliseconds::zero())
         {
-            // Duration of each CA Pass activity in CA Pass
+            // Duration of activities in PREfast
             const Indenter _{ indent };
-            const auto totalCAPassTime = static_cast<double>(total.CAPass.count());
+            const auto allAstClientsTime = static_cast<double>(astClients);
+            const auto functionAnalysis = total.CAFunction.count();
+            const auto misc = astClients - functionAnalysis;
             std::wcout
-                << indent << L"Compilation + Miscellaneous = " << ((total.CAPass - total.ASTCreation - total.ASTClients).count() / totalCAPassTime) * 100 << L"%\n"
-                << indent << L"AST Creation = " << (total.ASTCreation.count() / totalCAPassTime) * 100 << L"%\n"
-                << indent << L"All AST Clients = " << (total.ASTClients.count() / totalCAPassTime) * 100 << L"%\n";
-            if (total.ASTClients > milliseconds::zero())
+                << indent << L"Miscellaneous = " << (misc / allAstClientsTime) * 100
+                << L"% (" << (misc / totalPassTime) * 100 << L"%)\n"
+                << indent << L"Function Analysis = " << (functionAnalysis / allAstClientsTime) * 100
+                << L"% (" << (functionAnalysis / totalPassTime) * 100 << L"%)\n";
+            if (total.CAFunction > milliseconds::zero())
             {
-                // Duration of activities in PREfast
+                // Duration of each component's function analysis in PREfast
                 const Indenter _{ indent };
-                const auto allAstClientsTime = static_cast<double>((total.ASTClients).count());
+                const auto functionAnalysisTime = static_cast<double>(functionAnalysis);
+                const auto fpaAnalysis = total.FPAFunction.count();
+                const auto espxCfgBuilding = total.EspXCfgBuild.count();
+                const auto espxAllAnalysis = total.EspXAllChecks.count();
+                const auto misc = functionAnalysis - (fpaAnalysis + espxCfgBuilding + espxAllAnalysis);
                 std::wcout
-                    << indent << L"Miscellaneous = " << ((total.ASTClients - total.CAFunction).count() / allAstClientsTime) * 100 << L"%\n"
-                    << indent << L"Function Analysis = " << (total.CAFunction.count() / allAstClientsTime) * 100 << L"%\n";
-                if (total.CAFunction > milliseconds::zero())
+                    << indent << L"Miscellaneous = " << (misc / functionAnalysisTime) * 100
+                    << L"% (" << (misc / totalPassTime) * 100 << L"%)\n"
+                    << indent << L"PREfast's FPA Analysis = " << (fpaAnalysis / functionAnalysisTime) * 100
+                    << L"% (" << (fpaAnalysis / totalPassTime) * 100 << L"%)\n"
+                    << indent << L"EspX CFG Building = " << (espxCfgBuilding / functionAnalysisTime) * 100
+                    << L"% (" << (espxCfgBuilding / totalPassTime) * 100 << L"%)\n"
+                    << indent << L"EspX All Analysis = " << (espxAllAnalysis / functionAnalysisTime) * 100
+                    << L"% (" << (espxAllAnalysis / totalPassTime) * 100 << L"%)\n";
+                if (total.EspXAllChecks > milliseconds::zero())
                 {
-                    // Duration of each component's function analysis in PREfast
+                    // Duration of path-sensitive vs data-flow function analysis in EspXEngine
                     const Indenter _{ indent };
-                    const auto functionAnalysisTime = static_cast<double>(total.CAFunction.count());
+                    const auto espxFunctionAnalysisTime = static_cast<double>(espxAllAnalysis);
+                    const auto espxPathSensitiveAnalysis = total.EspXPathSensitiveChecks.count();
+                    const auto espxDfaPlusMisc = espxAllAnalysis - espxPathSensitiveAnalysis;
                     std::wcout
-                        << indent << L"Miscellaneous = " << ((total.CAFunction - total.FPAFunction - total.EspXCfgBuild - total.EspXAllChecks).count() / functionAnalysisTime) * 100 << L"%\n"
-                        << indent << L"PREfast's FPA Analysis = " << (total.FPAFunction.count() / functionAnalysisTime) * 100 << L"%\n"
-                        << indent << L"EspX CFG Building = " << (total.EspXCfgBuild.count() / functionAnalysisTime) * 100 << L"%\n"
-                        << indent << L"EspX All Analysis = " << (total.EspXAllChecks.count() / functionAnalysisTime) * 100 << L"%\n";
-                    if (total.EspXAllChecks > milliseconds::zero())
-                    {
-                        // Duration of path-sensitive vs data-flow function analysis in EspXEngine
-                        const Indenter _{ indent };
-                        const auto espxFunctionAnalysisTime = static_cast<double>(total.EspXAllChecks.count());
-                        std::wcout
-                            << indent << L"Path-sensitive Analysis = " << (total.EspXPathSensitiveChecks.count() / espxFunctionAnalysisTime) * 100 << L"%\n"
-                            << indent << L"Data-flow Analysis + Miscellaneous = " << ((total.EspXAllChecks - total.EspXPathSensitiveChecks).count() / espxFunctionAnalysisTime) * 100 << L"%\n";
-                    }
+                        << indent << L"Path-sensitive Analysis = " << (espxPathSensitiveAnalysis / espxFunctionAnalysisTime) * 100
+                        << L"% (" << (espxPathSensitiveAnalysis / totalPassTime) * 100 << L"%)\n"
+                        << indent << L"Data-flow Analysis + Miscellaneous = " << (espxDfaPlusMisc / espxFunctionAnalysisTime) * 100
+                        << L"% (" << (espxDfaPlusMisc / totalPassTime) * 100 << L"%)\n";
                 }
             }
         }
-
-        std::wcout.flush();
     }
 
     // Print the number of TUs with CA Pass greater than FE Pass
     if (TUsWithCAPassGE600Percent > 0 || TUsWithCAPassGE300Percent > 0 || TUsWithCAPassGE150Percent > 0)
     {
+        const double successfulTUCount = static_cast<double>(successfulTUs);
+        const auto TUsWithCAPassLT150Percent =
+            successfulTUs - (TUsWithCAPassGE600Percent + TUsWithCAPassGE300Percent + TUsWithCAPassGE150Percent);
         std::wcout << L"Number of TUs with long Code Analysis Pass compared to Front End Pass:\n";
-        std::wcout << indent << L"600% or more: " << TUsWithCAPassGE600Percent << "\n";
-        std::wcout << indent << L"300% or more: " << TUsWithCAPassGE300Percent << "\n";
-        std::wcout << indent << L"150% or more: " << TUsWithCAPassGE150Percent << std::endl;
+        std::wcout << indent << L"600% or more: " << TUsWithCAPassGE600Percent
+            << L" (" << (TUsWithCAPassGE600Percent / successfulTUCount) * 100 << "%)\n";
+        std::wcout << indent << L"300% or more: " << TUsWithCAPassGE300Percent
+            << L" (" << (TUsWithCAPassGE300Percent / successfulTUCount) * 100 << "%)\n";
+        std::wcout << indent << L"150% or more: " << TUsWithCAPassGE150Percent
+            << L" (" << (TUsWithCAPassGE150Percent / successfulTUCount) * 100 << "%)\n";
+        std::wcout << indent << L"Less than 150%: " << TUsWithCAPassLT150Percent
+            << L" (" << (TUsWithCAPassLT150Percent / successfulTUCount) * 100 << "%)\n";
     }
+
+    std::wcout.flush();
 }
