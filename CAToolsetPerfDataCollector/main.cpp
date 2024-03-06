@@ -2,6 +2,19 @@
 #include <filesystem>
 #include <cassert>
 
+// In this project, we use the following terms / acronyms throughout the project:
+//  - FE: Front End
+//  - BE: Back End
+//  - CA: Code Analysis
+//  - AST: Abstract Syntax Tree
+//  - CFG: Control Flow Graph
+//  - PREfast: Main driver of Code Analysis
+//  - PREfast Plug-ins: Clients of PREfast that can process / analyze ASTs
+//  - PREfast FPA: PREfast's built in checker that performs path-sensitive analysis
+//  - EspXEngine: Main PREfast plug-in that drives other checker extensions
+//  - EspXEngine Extensions: Clients of EspXEngine that can process / analyze CFGs
+//  - EspXEngine Path-sensitive Checks: EspXEngine's built-in or extensions that perform perform path-sensitive analysis
+
 enum class OutputFormat
 {
     Summary,    // Summary only. Default format
@@ -18,7 +31,7 @@ struct Options
     void PrintUsage(const char* programName)
     {
         std::filesystem::path path{ programName };
-        std::wcerr << L"Usage: " << path.replace_extension().filename()
+        std::wcout << L"Usage: " << path.replace_extension().filename()
             << L" [-v[erbose]] [-f[ormat]:Summary|CSV|Both]] <paths to trace files>\n"
             << L"    -v[erbose] : Print verbose output. Optional.\n"
             << L"    -f[ormat]:<format> : Output format (Summary, CSV, or Both). Optional. Defaults to Summary.\n"

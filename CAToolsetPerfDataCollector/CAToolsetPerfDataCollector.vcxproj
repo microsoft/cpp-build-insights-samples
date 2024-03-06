@@ -23,7 +23,7 @@
     <ProjectGuid>{E58C0F2E-6D89-44B2-8E65-C5A60B52A295}</ProjectGuid>
     <RootNamespace>CAToolsetPerfDataCollector</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>CAToolsetPerfDataCollector</ProjectName>
+    <ProjectName>CodeAnalysisPerfDataCollector</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

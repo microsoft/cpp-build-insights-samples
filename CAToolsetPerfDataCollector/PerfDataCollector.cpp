@@ -1,6 +1,8 @@
 #include "PerfDataCollector.h"
 #include <algorithm>
 
+// Please refer to main.cpp file for terms / acronyms used in this file.
+
 AnalysisControl PerfDataCollector::OnStopActivity(const EventStack& eventStack)
 {
     //
@@ -24,7 +26,7 @@ AnalysisControl PerfDataCollector::OnStopActivity(const EventStack& eventStack)
     // AST Creation
     MatchEventStackInMemberFunction(eventStack, this,
         &PerfDataCollector::GetCodeAnalysisEventDuration<AstCreation, &PerfData::ASTCreation>);
-    // SST Clients, e.g., PREfast
+    // AST Clients, e.g., PREfast
     MatchEventStackInMemberFunction(eventStack, this,
         &PerfDataCollector::GetCodeAnalysisEventDuration<CodeAnalysisPlugins, &PerfData::ASTClients>);
 
@@ -152,7 +154,10 @@ void PerfDataCollector::PrintSummary()
 
     for (const auto& [pathId, data] : perfDataPerTu)
     {
-        // If CA Pass is less than FE Pass, it is likely CA Pass is not captured properly.
+        // If CA Pass is less than FE Pass, it usually means one of the followings:
+        //  - File type is not something CA analyzes, e.g., an IDL file, etc.
+        //  - CA pass encountered compilation error that only occurs in CA pass
+        //  - CA pass encountered exceptions in early stage, before it spent enough time.
         // Ignore the record.
         if (data.FEPass > microseconds::zero() && data.CAPass < data.FEPass)
         {
@@ -262,7 +267,7 @@ void PerfDataCollector::PrintSummary()
                 std::wcout
                     << indent << L"Miscellaneous = " << (misc / functionAnalysisTime) * 100
                     << L"% (" << (misc / totalPassTime) * 100 << L"%)\n"
-                    << indent << L"PREfast's FPA Analysis = " << (fpaAnalysis / functionAnalysisTime) * 100
+                    << indent << L"PREfast's Function Path Analysis = " << (fpaAnalysis / functionAnalysisTime) * 100
                     << L"% (" << (fpaAnalysis / totalPassTime) * 100 << L"%)\n"
                     << indent << L"EspX CFG Building = " << (espxCfgBuilding / functionAnalysisTime) * 100
                     << L"% (" << (espxCfgBuilding / totalPassTime) * 100 << L"%)\n"

@@ -8,6 +8,8 @@
 
 #include <comutil.h>
 
+// Please refer to main.cpp file for terms / acronyms used in this file.
+
 using namespace Microsoft::Cpp::BuildInsights;
 using namespace Activities;
 using namespace SimpleEvents;
@@ -42,7 +44,7 @@ struct PerfData
     // It should be updated if the PerfData struct is updated.
     // Note that this header does not include the file path, which should be printed separately if needed.
     static constexpr std::wstring_view PerfDataHeader =
-        L"FrontEnd Pass, BackEnd Pass, CodeAnalysis Pass, "
+        L"Front End Pass, BackEnd Pass, Code Analysis Pass, "
         L"AST Creation, AST Clients, "                                      // Children of CodeAnalysis Pass
         L"Function Analysis, "                                              // Child of AST Clients
         L"FPA Function Analysis, EspX CFG Build, EspX Function Analysis, "  // Children of Function Analysis
