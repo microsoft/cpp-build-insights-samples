@@ -19,6 +19,7 @@ This repository provides buildable and runnable samples for the C++ Build Insigh
 | Sample            | Description                                |
 |-------------------|--------------------------------------------|
 | BottleneckCompileFinder | Finds CL invocations that are bottlenecks and don't use /MP. |
+| [CAToolsetPerfDataCollector](CAToolsetPerfDataCollector/README.md) | Prints summary of Code Analysis time relative to overall execution time. Optionally prints the summary for each source file. |
 | FunctionBottlenecks | Prints a list of functions that are code generation bottlenecks within their CL or Link invocation. |
 | LongCodeGenFinder | Lists the functions that take more than 500 milliseconds to generate in your entire build. |
 | RecursiveTemplateInspector | Identifies costly recursive template instantiations. |
@@ -31,8 +32,11 @@ This repository provides buildable and runnable samples for the C++ Build Insigh
 
 In order to build and run the samples in this repository, you need:
 
-- Visual Studio 2017 and above.
-- Windows 8 and above.
+- Visual Studio 2022 and above (requires platform toolset version v143).
+- BuildInsights SDK version 1.4.2 or later
+- Windows 10 and above. Windows 11 is recommended.
+
+CAToolsetPerfDataCollector requires compiler and Code Analysis toolsets available in Visual Studio 2022 17.11 and later.
 
 ## Build steps
 
@@ -47,16 +51,20 @@ In order to build and run the samples in this repository, you need:
 1. The samples require *CppBuildInsights.dll* and *KernelTraceControl.dll* to run. These files are available in the C++ Build Insights NuGet package. When building samples, these files are automatically copied next to them in their respective output directory. If you are going to move a sample around on your machine, please be sure to move these DLL's along with it.
 1. Collect a trace of the build you want to analyze with the sample. You can do this using two methods:
     1. Use vcperf:
-        1. Open an elevated x64 Native Tools Command Prompt for VS 2019.
+        1. Open an elevated x64 Native Tools Command Prompt.
         1. Run the following command: `vcperf /start MySessionName`
+            - It can be used with /noadmin option to run without elevation. Running vcperf without option or input displays supported options. 
         1. Build your project. You do not need to use the same command prompt for building.
         1. Run the following command: `vcperf /stopnoanalyze MySessionName outputTraceFile.etl`
     1. Programmatically: see the [C++ Build Insights SDK](https://docs.microsoft.com/cpp/build-insights/reference/sdk/overview?view=vs-2019) documentation for details.
 1. Invoke the sample, passing your trace as the first parameter.
 
+[CAToolsetPerfDataCollector](CAToolsetPerfDataCollector/README.md) has options to output results in different formats. Run the application without parameter or option to print the help on the options. Please find details about this sample in the [README.md](CAToolsetPerfDataCollector/README.md) for it.
+
+
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit [https://cla.opensource.microsoft.com](https://cla.opensource.microsoft.com).
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit [https://cla.opensource.microsoft.com](https://cla.opensource.microsoft.com).
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
 
